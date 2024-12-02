@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Block Prototype</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+        }
+
+        .progress-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+        }
+
+        .progress-circle {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #2196F3 var(--progress, 0),
+                #ddd var(--progress, 0)
+            );
+            transform: rotate(-90deg);
+        }
+
+        .progress-circle::before {
+            content: "";
+            position: absolute;
+            top: 5%;
+            left: 5%;
+            width: 90%;
+            height: 90%;
+            background: #f9f9f9;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .controls input {
+            width: 100px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .controls label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 24px;
+            transition: 0.4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.4s;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        input[type="number"] {
+            text-align: center;
+        }
+
+        @media (orientation: landscape) {
+            .progress-container {
+                width: 200px;
+                height: 200px;
+            }
+
+            .controls input {
+                width: 120px;
+            }
+
+            .controls label {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="progressBlock" class="progress-container">
+        <div id="progressCircle" class="progress-circle"></div>
+    </div>
+
+    <div class="controls">
+        <label>
+            Value:
+            <input type="number" id="valueInput" min="0" max="100" value="0" />
+        </label>
+        <label>
+            Animate:
+            <div class="toggle">
+                <input type="checkbox" id="animateToggle" />
+                <span class="slider"></span>
+            </div>
+        </label>
+        <label>
+            Hide:
+            <div class="toggle">
+                <input type="checkbox" id="hideToggle" />
+                <span class="slider"></span>
+            </div>
+        </label>
+    </div>
+
+    <script>
+        const progressBlock = document.getElementById("progressBlock");
+        const progressCircle = document.getElementById("progressCircle");
+        const valueInput = document.getElementById("valueInput");
+        const animateToggle = document.getElementById("animateToggle");
+        const hideToggle = document.getElementById("hideToggle");
+
+        let animationInterval;
+
+        function updateProgress(value) {
+            const progressValue = Math.max(0, Math.min(100, value));
+            progressCircle.style.setProperty("--progress", `${progressValue * 3.6}deg`);
+        }
+
+        function startAnimation() {
+            let rotation = 0;
+            animationInterval = setInterval(() => {
+                rotation = (rotation + 2) % 360;
+                progressCircle.style.transform = `rotate(${rotation - 90}deg)`;
+            }, 30);
+        }
+
+        function stopAnimation() {
+            clearInterval(animationInterval);
+            progressCircle.style.transform = `rotate(-90deg)`;
+        }
+
+        valueInput.addEventListener("input", (e) => {
+            updateProgress(e.target.value);
+        });
+
+        animateToggle.addEventListener("change", (e) => {
+            if (e.target.checked) {
+                startAnimation();
+            } else {
+                stopAnimation();
+            }
+        });
+
+        hideToggle.addEventListener("change", (e) => {
+            progressBlock.classList.toggle("hidden", e.target.checked);
+        });
+
+        // Initialize with default value
+        updateProgress(valueInput.value);
+    </script>
+</body>
+</html>
